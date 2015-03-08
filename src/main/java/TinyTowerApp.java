@@ -2,11 +2,8 @@ import actor.TowerActor;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import akka.pattern.Patterns;
 import gui.GUI;
 import gui.GUIController;
-
-import java.awt.event.ActionListener;
 
 /**
  * User: louis.forite
