@@ -16,6 +16,8 @@ public class GUI extends JFrame {
 
     private JTextField floorNumberTextField;
 
+    private JLabel moneyLabel;
+
     public GUI() {
         super("JPrompt Demo");
 
@@ -34,7 +36,10 @@ public class GUI extends JFrame {
         }
 
         floorNumberTextField = new JTextField(3);
+        moneyLabel = new JLabel();
+
         panel.add(floorNumberTextField);
+        panel.add(moneyLabel);
 
         add(panel);
 
@@ -52,5 +57,9 @@ public class GUI extends JFrame {
 
     public String getFloorNumber() {
         return floorNumberTextField.getText();
+    }
+
+    public void refreshMoneyAmount(Integer amount) {
+        moneyLabel.setText(String.valueOf(amount));
     }
 }

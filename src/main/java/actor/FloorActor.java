@@ -15,7 +15,6 @@ import java.util.concurrent.TimeUnit;
 public abstract class FloorActor extends UntypedActor {
 
     protected String name;
-    //protected String color;
     protected FloorStatus status;
 
     public FloorActor(String name, long constructionLength) {

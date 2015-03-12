@@ -14,7 +14,7 @@ public class TinyTowerApp {
 
     public static void main(String[] args) {
         ActorSystem system = ActorSystem.create("TinyTowerSystem");
-        ActorRef tower = system.actorOf(Props.create(TowerActor.class, "tower"), "tower");
+        ActorRef tower = system.actorOf(Props.create(TowerActor.class), "tower");
         system.actorOf(Props.create(GUIController.class, new GUI(), tower), "controller");
     }
 }

@@ -1,5 +1,6 @@
 package actor;
 
+import akka.actor.ActorRef;
 import akka.actor.Props;
 import entity.StoreFloorStatus;
 import message.*;
@@ -23,15 +24,22 @@ public class StoreFloorActor extends FloorActor {
      */
     private Map<Integer, Integer> mapGoodToQuantity;
 
-    //TODO: reporter for money, as actor
+    /**
+     * The actor to whom reports money updates
+     */
+    private ActorRef moneyCollector;
 
     /**
      * Build a closed shop
      */
-    public StoreFloorActor(String name, long constructionLength) {
+    public StoreFloorActor(String name, long constructionLength, ActorRef moneyCollector) {
         super(name, constructionLength);
         storeStatus = StoreFloorStatus.CLOSED;
         mapGoodToQuantity = new TreeMap<>();
+        mapGoodToQuantity.put(0, 0);
+        mapGoodToQuantity.put(1, 0);
+        mapGoodToQuantity.put(2, 0);
+        this.moneyCollector = moneyCollector;
     }
 
     @Override
@@ -43,6 +51,7 @@ public class StoreFloorActor extends FloorActor {
             EndRestockMessage endRestockMessage = (EndRestockMessage) message;
             mapGoodToQuantity.put(endRestockMessage.getGoodNumber(), 500);
             storeStatus = StoreFloorStatus.OPEN;
+            System.out.println("Restocked good " + endRestockMessage.getGoodNumber() + " at floor " + name);
         }
 
         //handling store actions
@@ -86,11 +95,17 @@ public class StoreFloorActor extends FloorActor {
         getContext().actorOf(Props.create(ConsumerActor.class, incomingBitizenMessage.getBitizen(), getSelf()));
     }
 
-    //TODO: HANDLE MONEY
+    /**
+     * Buy a good by checking if the good is not out of stock and then reporting it to the money collector
+     *
+     * @param message the message which contains the good to buy
+     */
     private void buyGoodMessage(BuyGoodMessage message) {
         if (mapGoodToQuantity.containsKey(message.getGoodNumber()) && mapGoodToQuantity.get(message.getGoodNumber()) > 0) {
             mapGoodToQuantity.put(message.getGoodNumber(), mapGoodToQuantity.get(message.getGoodNumber()) - 1);
+            moneyCollector.tell(new EarnMoneyMessage(message.getGoodNumber() + 1), getSelf());
             if (stockEmpty()) {
+                System.out.println("Shop " + name + " is closed");
                 storeStatus = StoreFloorStatus.CLOSED;
             }
         }

@@ -4,11 +4,15 @@ import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
 import entity.FloorType;
 import entity.StoreCategory;
+import message.AskReportMoneyMessage;
 import message.BuildFloorMessage;
+import message.ReportMoneyMessage;
 import message.RestockFloorMessage;
+import scala.concurrent.duration.Duration;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.concurrent.TimeUnit;
 
 /**
  * User: louis.forite
@@ -23,10 +27,11 @@ public class GUIController extends UntypedActor implements ActionListener {
     private ActorRef tower;
     private GUI gui;
 
-    public GUIController(GUI gui, ActorRef tower) {
+    public GUIController(GUI gui, final ActorRef tower) {
         this.tower = tower;
         this.gui = gui;
         this.gui.suscribeButtonsToActionListener(this);
+        scheduleMoneyUpdates();
     }
 
     /**
@@ -37,7 +42,9 @@ public class GUIController extends UntypedActor implements ActionListener {
      */
     @Override
     public void onReceive(Object message) throws Exception {
-        //TODO: process updates from the tower
+        if (message instanceof ReportMoneyMessage) {
+            updateMoneyAmount((ReportMoneyMessage) message);
+        }
     }
 
     /**
@@ -74,11 +81,31 @@ public class GUIController extends UntypedActor implements ActionListener {
         }
     }
 
+    /**
+     * Ask money updates from tower every sec
+     */
+    private void scheduleMoneyUpdates() {
+        getContext().system().scheduler().schedule(
+                Duration.Zero(),
+                Duration.create(1, TimeUnit.SECONDS),
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        tower.tell(new AskReportMoneyMessage(), getSelf());
+                    }
+                }, getContext().system().dispatcher()
+        );
+    }
+
     private void restock() {
         tower.tell(new RestockFloorMessage(Integer.valueOf(gui.getFloorNumber()), 0), tower);
     }
 
     private void buildFloor(FloorType floorType, StoreCategory storeCategory) {
         tower.tell(new BuildFloorMessage(floorType, storeCategory), tower);
+    }
+
+    private void updateMoneyAmount(ReportMoneyMessage message) {
+        gui.refreshMoneyAmount(message.getAmount());
     }
 }

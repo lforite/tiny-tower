@@ -1,7 +1,9 @@
 package actor;
 
+import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
+import message.AskReportMoneyMessage;
 import message.BuildFloorMessage;
 import message.IncomingBitizenMessage;
 import message.RestockFloorMessage;
@@ -13,13 +15,18 @@ import message.RestockFloorMessage;
  */
 public class TowerActor extends UntypedActor {
 
-    private String towerName;
-
     private int numberOfFloors = 2;
 
-    public TowerActor(String towerName) {
-        this.towerName = towerName;
-        getContext().actorOf(Props.create(LobbyFloorActor.class, "lobby", getSelf()), "lobby");
+    private ActorRef lobby;
+    private ActorRef moneyCollector;
+
+    /**
+     * Instantiate a tower with a lobby and a money collector
+     */
+    public TowerActor() {
+        lobby = getContext().actorOf(Props.create(LobbyFloorActor.class, "lobby", getSelf()), "lobby");
+        moneyCollector = getContext().actorOf(Props.create(MoneyCollectorActor.class, 600), "moneyCollector");
+        //TODO: once money is handled properly, remove nice apartment
         getContext().actorOf(Props.create(ApartmentFloorActor.class, "Nice apartment", 0L), "2");
     }
 
@@ -27,14 +34,13 @@ public class TowerActor extends UntypedActor {
     public void onReceive(Object message) throws Exception {
         if (message instanceof BuildFloorMessage) {
             buildFloor((BuildFloorMessage) message);
-            //warn the lobby there is a new floor so bitizens can go up to the new floor
-            getContext().getChild("lobby").tell(message, getSelf());
         } else if (message instanceof RestockFloorMessage) {
             getContext().getChild(String.valueOf(((RestockFloorMessage) message).getFloorNumber())).tell(message, getSelf());
         } else if (message instanceof IncomingBitizenMessage) {
             IncomingBitizenMessage incomingBitizenMessage = (IncomingBitizenMessage) message;
-            //System.out.println(getContext().getChildren());
             getContext().getChild(String.valueOf(incomingBitizenMessage.getFloorNumber())).tell(message, getSelf());
+        } else if (message instanceof AskReportMoneyMessage) {
+            moneyCollector.forward(message, getContext());
         }
     }
 
@@ -45,16 +51,19 @@ public class TowerActor extends UntypedActor {
      */
     private void buildFloor(BuildFloorMessage buildFloorMessage) {
         String floorNumber = String.valueOf(numberOfFloors + 1);
-        System.out.println("Created floor " + floorNumber);
+        System.out.println("Created floor " + floorNumber + " of type " + buildFloorMessage.getFloorType().toString());
         switch (buildFloorMessage.getFloorType()) {
             case APARTMENT:
                 getContext().actorOf(Props.create(ApartmentFloorActor.class, 1L), floorNumber);
                 break;
             case STORE:
-                getContext().actorOf(Props.create(StoreFloorActor.class, "test", 1L), floorNumber);
+                getContext().actorOf(Props.create(StoreFloorActor.class, "test", 1L, moneyCollector), floorNumber);
                 break;
         }
 
         numberOfFloors++;
+
+        //warn the lobby there is a new floor so bitizens can go up to the new floor
+        lobby.tell(buildFloorMessage, getSelf());
     }
 }
