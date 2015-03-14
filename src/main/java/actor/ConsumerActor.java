@@ -30,7 +30,7 @@ public class ConsumerActor extends UntypedActor {
                     Random random = new Random();
                     @Override
                     public void run() {
-                        //random good
+                        //random name
                         store.tell(new BuyGoodMessage(random.nextInt(3)), getSelf());
                     }
                 }, getContext().system().dispatcher()

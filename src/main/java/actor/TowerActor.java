@@ -51,13 +51,12 @@ public class TowerActor extends UntypedActor {
      */
     private void buildFloor(BuildFloorMessage buildFloorMessage) {
         String floorNumber = String.valueOf(numberOfFloors + 1);
-        System.out.println("Created floor " + floorNumber + " of type " + buildFloorMessage.getFloorType().toString());
         switch (buildFloorMessage.getFloorType()) {
             case APARTMENT:
                 getContext().actorOf(Props.create(ApartmentFloorActor.class, 1L), floorNumber);
                 break;
             case STORE:
-                getContext().actorOf(Props.create(StoreFloorActor.class, "test", 1L, moneyCollector), floorNumber);
+                getContext().actorOf(Props.create(StoreFloorActor.class, buildFloorMessage.getStoreCategory(), 1L, moneyCollector), floorNumber);
                 break;
         }
 

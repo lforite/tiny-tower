@@ -50,7 +50,7 @@ public class GUIController extends UntypedActor implements ActionListener {
     /**
      * Process action made on the GUI
      *
-     * @param e
+     * @param e the triggered event
      */
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -87,7 +87,7 @@ public class GUIController extends UntypedActor implements ActionListener {
     private void scheduleMoneyUpdates() {
         getContext().system().scheduler().schedule(
                 Duration.Zero(),
-                Duration.create(1, TimeUnit.SECONDS),
+                Duration.create(500, TimeUnit.MILLISECONDS),
                 new Runnable() {
                     @Override
                     public void run() {

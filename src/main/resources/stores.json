@@ -1,0 +1,65 @@
+[
+    {
+        "category": "FOOD",
+        "defaultName": "Asian Cuisine",
+        "goods": [
+            {
+                "name": "Spring Rolls",
+                "maxQuantity": 150,
+                "restockingTime": 10
+            },
+            {
+                "name": "Noodle Bowl",
+                "maxQuantity": 375,
+                "restockingTime": 15
+            },
+            {
+                "name": "Orange Tofu",
+                "maxQuantity": 675,
+                "restockingTime": 45
+            }
+        ]
+    },
+    {
+        "category": "FOOD",
+        "defaultName": "Pizza Place",
+        "goods": [
+            {
+                "name": "Pizza Slice",
+                "maxQuantity": 75,
+                "restockingTime": 5
+            },
+            {
+                "name": "Personal Pan",
+                "maxQuantity": 450,
+                "restockingTime": 30
+            },
+            {
+                "name": "Giant Pizza",
+                "maxQuantity": 675,
+                "restockingTime": 45
+            }
+        ]
+    },
+    {
+        "category": "FOOD",
+        "defaultName": "Bakery",
+        "goods": [
+            {
+                "name": "Sugar Cookies",
+                "maxQuantity": 450,
+                "restockingTime": 30
+            },
+            {
+                "name": "Walnut Muffins",
+                "maxQuantity": 675,
+                "restockingTime": 45
+            },
+            {
+                "name": "Bread Loaf",
+                "maxQuantity": 2700,
+                "restockingTime": 180
+            }
+        ]
+    }
+]
